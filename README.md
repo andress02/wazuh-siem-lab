@@ -4,7 +4,7 @@ I built a small SIEM lab on my MacBook using Wazuh and two Ubuntu VMs in Virtual
 
 ## Architecture
 
-![Architecture](screenshots/architecture.png)
+<img src="screenshots/architecture.png" alt="Architecture diagram" width="800">
 
 | VM | Role | Address |
 |---|---|---|
@@ -16,27 +16,29 @@ I built a small SIEM lab on my MacBook using Wazuh and two Ubuntu VMs in Virtual
 - Software: Wazuh 4.14.9 (all-in-one install)
 - Network: each VM has a NAT adapter for internet access and an Internal Network adapter (`labnet`) for lab traffic
 
-![Adapter 1](screenshots/virtualbox-network-1.png)
-![Adapter 2](screenshots/virtualbox-network-2.png)
+<img src="screenshots/virtualbox-network-1.png" alt="Adapter 1: NAT" width="450">
+<img src="screenshots/virtualbox-network-2.png" alt="Adapter 2: Internal Network labnet" width="450">
 
 ## Result: the agent is connected and reporting
 
-![Agent active](screenshots/agents-active.png)
-![Services running](screenshots/services-active.png)
+<img src="screenshots/agents-active.png" alt="Agent ubuntu-lab-2 active in the Wazuh dashboard" width="700">
+
+<img src="screenshots/services-active.png" alt="All three Wazuh services active" width="600">
 
 ## Test: detecting privileged command use
 
 On the endpoint I ran `sudo ls /root` twice. Wazuh detected both as rule 5402, "Successful sudo to ROOT executed" (level 3, groups: syslog, sudo).
 
-![Sudo events](screenshots/wazuh-sudo-events.png)
-![Rule detail](screenshots/wazuh-sudo-detail-rule.png)
-![Agent detail](screenshots/wazuh-sudo-detail-agent.png)
+<img src="screenshots/wazuh-sudo-events.png" alt="Two sudo events in Threat Hunting" width="800">
+
+<img src="screenshots/wazuh-sudo-detail-rule.png" alt="Rule detail for rule 5402" width="450">
+<img src="screenshots/wazuh-sudo-detail-agent.png" alt="Agent name and IP" width="450">
 
 ## Problem I solved: install failing with a full disk
 
 The main issue I was running into was the Wazuh install failing partway through. The last attempt ended with “Wazuh dashboard installation failed,” and I watched free disk space on the server drop to zero while it ran. I first checked memory with `free -h` and added a 4 GB swap file, but memory wasn’t the problem. The cause was disk space. On first start, the Wazuh manager unpacks a vulnerability database of over 7.6 GB into `/var/ossec/tmp`, and that filled my 24 GB virtual disk completely. I used Claude Code to help track it down and then grew the disk to 40 GB. After that the install finished, the dashboard loaded, all three services were active, and the agent connected.
 
-![Disk after fix](screenshots/disk-40g.png)
+<img src="screenshots/disk-40g.png" alt="df -h output showing a 39 GB disk" width="500">
 
 ## What I learned
 
